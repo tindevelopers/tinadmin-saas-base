@@ -71,6 +71,16 @@ const templates = [
     features: ["AI Blog Generation", "Content Calendar", "SEO Optimization", "Analytics Dashboard"],
     preview: "/images/templates/blog-writer-preview.png",
     installCommand: "npx create-tinadmin@latest blog-writer my-blog"
+  },
+  {
+    id: "ai-customer-care",
+    name: "AI Customer Care",
+    description: "Enterprise-grade admin platform for managing AI voice agents, chat conversations, and call analytics",
+    icon: "🤖",
+    color: "bg-indigo-500",
+    features: ["Voice Agent Management", "Live Call Monitoring", "Analytics & Reporting", "Integration Hub"],
+    preview: "/images/templates/ai-customer-care-preview.png",
+    installCommand: "npx create-tinadmin@latest ai-customer-care my-call-center"
   }
 ];
 

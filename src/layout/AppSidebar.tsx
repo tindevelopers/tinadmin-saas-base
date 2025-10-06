@@ -107,6 +107,21 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    name: "AI Customer Care",
+    icon: <CallIcon />,
+    new: true,
+    subItems: [
+      { name: "Dashboard", path: "/templates/ai-customer-care" },
+      { name: "Voice Agents", path: "/templates/ai-customer-care/agents/voice" },
+      { name: "Analytics", path: "/templates/ai-customer-care/analytics" },
+      { name: "Call History", path: "/templates/ai-customer-care/calls/history" },
+      { name: "Knowledge Base", path: "/templates/ai-customer-care/knowledge" },
+      { name: "Integrations", path: "/templates/ai-customer-care/integrations" },
+      { name: "Webhooks", path: "/templates/ai-customer-care/webhooks" },
+      { name: "Phone Numbers", path: "/templates/ai-customer-care/numbers" },
+    ],
+  },
+  {
     name: "E-commerce",
     icon: <CartIcon />,
     new: true,
@@ -301,7 +316,7 @@ const AppSidebar: React.FC = () => {
                   new
                 </span>
               )}
-              {(isExpanded || isHovered || isMobileOpen) && (
+              {(isExpanded || isHovered || isMobileOpen) && nav.subItems && (
                 <ChevronDownIcon
                   className={`ml-auto w-5 h-5 transition-transform duration-200  ${
                     openSubmenu?.type === menuType &&

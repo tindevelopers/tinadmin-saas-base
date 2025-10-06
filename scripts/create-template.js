@@ -62,6 +62,15 @@ const templates = {
       primary: '#F59E0B',
       secondary: '#EF4444'
     }
+  },
+  'ai-customer-care': {
+    name: 'TinAdmin AI Customer Care',
+    description: 'Enterprise-grade admin platform for managing AI voice agents, chat conversations, call analytics, and omnichannel customer interactions',
+    features: ['voice-agent-management', 'chat-agent-management', 'call-analytics', 'live-monitoring', 'analytics-reporting', 'integration-hub'],
+    colors: {
+      primary: '#4F46E5',
+      secondary: '#06B6D4'
+    }
   }
 };
 
