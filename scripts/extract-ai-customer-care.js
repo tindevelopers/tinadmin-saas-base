@@ -641,7 +641,7 @@ For deployment issues:
         build: "next build",
         start: "next start",
         lint: "next lint",
-        type-check: "tsc --noEmit"
+        "type-check": "tsc --noEmit"
       },
       dependencies: {},
       devDependencies: {},
