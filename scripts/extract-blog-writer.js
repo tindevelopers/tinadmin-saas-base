@@ -5,9 +5,23 @@
  * 
  * This script extracts the Blog Writer template from the TinAdmin repository
  * and creates a standalone Next.js project with all necessary files and dependencies.
+ * It can also deploy the template to GitHub and publish to NPM.
  * 
- * Usage: node scripts/extract-blog-writer.js [output-directory]
- * Example: node scripts/extract-blog-writer.js ./blog-writer-standalone
+ * Usage: 
+ *   node scripts/extract-blog-writer.js [output-directory] [options]
+ * 
+ * Examples:
+ *   node scripts/extract-blog-writer.js ./blog-writer-standalone
+ *   node scripts/extract-blog-writer.js ./blog-writer-standalone --deploy-github
+ *   node scripts/extract-blog-writer.js ./blog-writer-standalone --deploy-github --publish-npm
+ * 
+ * Options:
+ *   --deploy-github, --deploy    Deploy the template to GitHub (develop branch ONLY)
+ *   --publish-npm, --npm         Also publish to NPM (requires --deploy-github)
+ * 
+ * SAFETY: This script ONLY operates on the 'develop' branch and will NEVER
+ * modify the 'main' branch. The main branch is protected and can only be
+ * updated via Pull Requests.
  */
 
 const fs = require('fs');
@@ -17,7 +31,60 @@ const { execSync } = require('child_process');
 // Configuration
 const TEMPLATE_NAME = 'blog-writer';
 const TEMPLATE_DISPLAY_NAME = 'Blog Writer';
-const OUTPUT_DIR = process.argv[2] || `./${TEMPLATE_NAME}-standalone`;
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const OUTPUT_DIR = args[0] || `./${TEMPLATE_NAME}-standalone`;
+const SHOULD_DEPLOY_GITHUB = args.includes('--deploy-github') || args.includes('--deploy');
+const SHOULD_PUBLISH_NPM = args.includes('--publish-npm') || args.includes('--npm');
+const SHOW_HELP = args.includes('--help') || args.includes('-h');
+
+// Help function
+function showHelp() {
+  console.log(`
+${TEMPLATE_DISPLAY_NAME} Template Extraction Script
+
+This script extracts the Blog Writer template from the TinAdmin repository
+and creates a standalone Next.js project with all necessary files and dependencies.
+
+USAGE:
+  node scripts/extract-blog-writer.js [output-directory] [options]
+
+ARGUMENTS:
+  output-directory    Directory to create the standalone template (default: ./blog-writer-standalone)
+
+OPTIONS:
+  --deploy-github, --deploy    Deploy the template to GitHub (develop branch)
+  --publish-npm, --npm         Also publish to NPM (requires --deploy-github)
+  --help, -h                   Show this help message
+
+EXAMPLES:
+  # Basic extraction
+  node scripts/extract-blog-writer.js ./my-blog-template
+  
+  # Extract and deploy to GitHub
+  node scripts/extract-blog-writer.js ./my-blog-template --deploy-github
+  
+  # Extract, deploy to GitHub, and publish to NPM
+  node scripts/extract-blog-writer.js ./my-blog-template --deploy-github --publish-npm
+
+GITHUB REPOSITORY:
+  https://github.com/tindevelopers/adminpanel-template-blog-writer-next-js
+  
+FEATURES:
+  ✅ Complete Next.js project structure
+  ✅ All blog writer components and pages
+  ✅ Fixed missing dependencies and files
+  ✅ GitHub deployment to develop branch
+  ✅ NPM package publishing
+  ✅ Executable template creation script
+`);
+}
+
+if (SHOW_HELP) {
+  showHelp();
+  process.exit(0);
+}
 
 // Files and directories to copy
 const FILES_TO_COPY = [
@@ -46,20 +113,97 @@ const FILES_TO_COPY = [
   'src/utils',
   'src/svg.d.ts',
   
-  // Template-specific files
+  // Template-specific files (ONLY blog-writer)
   `src/app/templates/${TEMPLATE_NAME}`,
   `src/components/${TEMPLATE_NAME}`,
+  
+  // Essential UI components that blog writer might need
+  'src/components/ui',
+  'src/components/common',
+  'src/components/charts',
+  'src/components/form',
+  'src/components/tables',
+  
+  // Layout components
   'src/layout/AppSidebar.tsx',
   'src/layout/AppHeader.tsx',
   'src/layout/Backdrop.tsx',
   'src/layout/SidebarWidget.tsx',
   
-  // Icons (we'll filter these)
-  'src/icons',
+  // Header components (required by AppHeader)
+  'src/components/header/NotificationDropdown.tsx',
+  'src/components/header/UserDropdown.tsx',
   
   // Documentation
-  'docs/MULTITENANT_ARCHITECTURE.md',
   `templates/${TEMPLATE_NAME}/template.config.json`,
+];
+
+// Icons to copy (comprehensive list based on actual usage)
+const ICONS_TO_COPY = [
+  // Core navigation icons
+  'src/icons/mail-line.svg',
+  'src/icons/calender-line.svg',
+  'src/icons/pie-chart.svg',
+  'src/icons/page.svg',
+  'src/icons/videos.svg',
+  'src/icons/group.svg',
+  'src/icons/docs.svg',
+  'src/icons/plug-in.svg',
+  'src/icons/bolt.svg',
+  'src/icons/box.svg',
+  'src/icons/horizontal-dots.svg',
+  'src/icons/close.svg',
+  'src/icons/alert.svg',
+  'src/icons/user-line.svg',
+  'src/icons/chevron-down.svg',
+  'src/icons/chevron-up.svg',
+  'src/icons/plus.svg',
+  'src/icons/pencil.svg',
+  'src/icons/trash.svg',
+  'src/icons/eye.svg',
+  'src/icons/arrow-up.svg',
+  'src/icons/arrow-down.svg',
+  'src/icons/check-circle.svg',
+  'src/icons/info-hexa.svg',
+  'src/icons/info.svg',
+  
+  // Additional icons found in usage
+  'src/icons/folder.svg',
+  'src/icons/audio.svg',
+  'src/icons/grid.svg',
+  'src/icons/file.svg',
+  'src/icons/download.svg',
+  'src/icons/arrow-right.svg',
+  'src/icons/box-line.svg',
+  'src/icons/shooting-star.svg',
+  'src/icons/dollar-line.svg',
+  'src/icons/angle-up.svg',
+  'src/icons/angle-down.svg',
+  'src/icons/check-line.svg',
+  'src/icons/close-line.svg',
+  'src/icons/paper-plane.svg',
+  'src/icons/lock.svg',
+  'src/icons/envelope.svg',
+  'src/icons/eye-close.svg',
+  'src/icons/time.svg',
+  'src/icons/copy.svg',
+  'src/icons/chevron-left.svg',
+  'src/icons/user-circle.svg',
+  'src/icons/task-icon.svg',
+  'src/icons/list.svg',
+  'src/icons/table.svg',
+  'src/icons/box-cube.svg',
+  'src/icons/chat.svg',
+  'src/icons/MoreDotIcon.svg',
+  'src/icons/ai-icon.svg',
+  'src/icons/cart-icon.svg',
+  'src/icons/call-icon.svg',
+         'src/icons/box-tapped.svg',
+         'src/icons/box-icon.svg',
+         'src/icons/truck-delivery.svg',
+         
+         // Icon index file
+         'src/icons/index.tsx',
 ];
 
 // Files to create/modify
@@ -156,10 +300,53 @@ function copyFileOrDirectory(src, dest) {
 
 function createPackageJson() {
   const packageJson = {
-    name: `${TEMPLATE_NAME}-standalone`,
+    name: `tinadmin-blog-writer-template`,
     version: '1.0.0',
     description: `${TEMPLATE_DISPLAY_NAME} Template - A comprehensive blog management and content creation platform`,
-    private: true,
+    private: false,
+    main: "bin/create-blog-writer.js",
+    bin: {
+      "tinadmin-blog-writer-template": "./bin/create-blog-writer.js"
+    },
+    files: [
+      "bin/",
+      "src/",
+      "public/",
+      "templates/",
+      "package.json",
+      "README.md",
+      "DEPLOYMENT.md",
+      "LICENSE",
+      "next.config.ts",
+      "tsconfig.json",
+      "tailwind.config.ts",
+      "postcss.config.mjs",
+      "eslint.config.mjs"
+    ],
+    keywords: [
+      "nextjs",
+      "react",
+      "typescript",
+      "tailwindcss",
+      "blog",
+      "content-management",
+      "cms",
+      "admin-panel",
+      "template"
+    ],
+    author: "TinAdmin",
+    license: "MIT",
+    homepage: "https://github.com/tindevelopers/adminpanel-template-blog-writer-next-js",
+    repository: {
+      type: "git",
+      url: "git+https://github.com/tindevelopers/adminpanel-template-blog-writer-next-js.git"
+    },
+    bugs: {
+      url: "https://github.com/tindevelopers/adminpanel-template-blog-writer-next-js/issues"
+    },
+    publishConfig: {
+      access: "public"
+    },
     scripts: REQUIRED_SCRIPTS,
     dependencies: {},
     devDependencies: {},
@@ -169,15 +356,37 @@ function createPackageJson() {
     }
   };
   
-  // Add dependencies
+  // Add dependencies with proper parsing
   REQUIRED_DEPENDENCIES.forEach(dep => {
-    const [name, version] = dep.split('@');
-    packageJson.dependencies[name] = version;
+    // Handle scoped packages like @types/node@^20.0.0
+    const match = dep.match(/^(@[^@]+)@(.+)$/);
+    if (match) {
+      const [, name, version] = match;
+      packageJson.dependencies[name] = version;
+    } else {
+      // Handle non-scoped packages like react@^18.0.0
+      const parts = dep.split('@');
+      if (parts.length === 2) {
+        const [name, version] = parts;
+        packageJson.dependencies[name] = version;
+      }
+    }
   });
   
   REQUIRED_DEV_DEPENDENCIES.forEach(dep => {
-    const [name, version] = dep.split('@');
-    packageJson.devDependencies[name] = version;
+    // Handle scoped packages like @types/node@^20.0.0
+    const match = dep.match(/^(@[^@]+)@(.+)$/);
+    if (match) {
+      const [, name, version] = match;
+      packageJson.devDependencies[name] = version;
+    } else {
+      // Handle non-scoped packages like typescript@^5.0.0
+      const parts = dep.split('@');
+      if (parts.length === 2) {
+        const [name, version] = parts;
+        packageJson.devDependencies[name] = version;
+      }
+    }
   });
   
   return packageJson;
@@ -192,38 +401,6 @@ export default function HomePage() {
 }`;
 }
 
-function createAdminLayout() {
-  return `import { ReactNode } from 'react';
-import AppHeader from '@/layout/AppHeader';
-import AppSidebar from '@/layout/AppSidebar';
-
-interface AdminLayoutProps {
-  children: ReactNode;
-}
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
-  return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <AppSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <AppHeader />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
-}`;
-}
-
-function createAdminPage() {
-  return `import { redirect } from 'next/navigation';
-
-export default function AdminPage() {
-  // Redirect to the blog writer template
-  redirect('/templates/${TEMPLATE_NAME}');
-}`;
-}
 
 function createReadme() {
   return `# ${TEMPLATE_DISPLAY_NAME} Template
@@ -695,14 +872,13 @@ function addBuildCaching() {
   if (fs.existsSync(nextConfigPath)) {
     let configContent = fs.readFileSync(nextConfigPath, 'utf8');
     
-    // Add caching configuration
+    // Add caching configuration for standalone deployment
     const cachingConfig = `
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // Enable static generation for better performance
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-  },
+  // Set correct workspace root for standalone repository
+  outputFileTracingRoot: path.join(__dirname),
+  
   // Enable caching for better performance
   onDemandEntries: {
     maxInactiveAge: 25 * 1000,
@@ -717,8 +893,7 @@ const nextConfig = {
   compress: true,
   // Enable static optimization
   trailingSlash: false,
-  // Enable SWC minification
-  swcMinify: true,
+  // SWC minification is enabled by default in Next.js 15
 };`;
     
     // Replace the existing config
@@ -737,6 +912,517 @@ const nextConfig = {
     
     fs.writeFileSync(nextConfigPath, configContent);
   }
+}
+
+function integrateAdminLayoutIntoMain() {
+  const layoutPath = path.join(OUTPUT_DIR, 'src/app/layout.tsx');
+  if (fs.existsSync(layoutPath)) {
+    let layoutContent = fs.readFileSync(layoutPath, 'utf8');
+    
+    // Add imports for AppHeader and AppSidebar
+    if (!layoutContent.includes("import AppHeader")) {
+      layoutContent = layoutContent.replace(
+        "import { ThemeProvider } from \"@/context/ThemeContext\";",
+        "import { ThemeProvider } from \"@/context/ThemeContext\";\nimport AppHeader from \"@/layout/AppHeader\";\nimport AppSidebar from \"@/layout/AppSidebar\";"
+      );
+    }
+    
+    // Replace the body content to include admin layout
+    const newBodyContent = `      <body className={\`\${outfit.className} dark:bg-gray-900\`}>
+        <ThemeProvider>
+          <SidebarProvider>
+            <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+              <AppSidebar />
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <AppHeader />
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
+                  {children}
+                </main>
+              </div>
+            </div>
+          </SidebarProvider>
+        </ThemeProvider>
+      </body>`;
+    
+    // Replace the existing body content
+    layoutContent = layoutContent.replace(
+      /<body className=\{`\${outfit\.className} dark:bg-gray-900`\}>[\s\S]*?<\/body>/,
+      newBodyContent
+    );
+    
+    fs.writeFileSync(layoutPath, layoutContent);
+  }
+}
+
+function createVercelConfig() {
+  const vercelConfig = {
+    version: 2,
+    builds: [
+      {
+        src: "package.json",
+        use: "@vercel/next"
+      }
+    ],
+    routes: [
+      {
+        src: "/(.*)",
+        dest: "/$1"
+      }
+    ],
+    env: {
+      NODE_ENV: "production"
+    }
+  };
+  
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'vercel.json'),
+    JSON.stringify(vercelConfig, null, 2)
+  );
+}
+
+function createLicense() {
+  const licenseContent = `MIT License
+
+Copyright (c) 2025 TinAdmin
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`;
+  
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'LICENSE'),
+    licenseContent
+  );
+}
+
+function createGitignore() {
+  const gitignoreContent = `# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Temporary folders
+tmp/
+temp/`;
+  
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, '.gitignore'),
+    gitignoreContent
+  );
+}
+
+function createBinDirectory() {
+  const binDir = path.join(OUTPUT_DIR, 'bin');
+  ensureDirectoryExists(binDir);
+  
+  const createScriptContent = `#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+function log(message, type = 'info') {
+  const icons = {
+    info: '📝',
+    success: '✅',
+    warning: '⚠️',
+    error: '❌',
+    progress: '🔄'
+  };
+  console.log(\`\${icons[type]} \${message}\`);
+}
+
+function createBlogWriterProject() {
+  const projectName = process.argv[2];
+
+  if (!projectName) {
+    log('Please specify the project directory: npx tinadmin-blog-writer-template <project-name>', 'error');
+    process.exit(1);
+  }
+
+  const projectPath = path.resolve(process.cwd(), projectName);
+  const templateDir = path.dirname(__dirname); // This points to the template directory
+
+  log(\`🚀 Creating new Blog Writer project: \${projectName}\`, 'progress');
+
+  try {
+    // Create project directory
+    fs.mkdirSync(projectPath, { recursive: true });
+
+    log('📁 Copying template files...', 'progress');
+
+    // Copy all template files except node_modules, .git, and this bin directory
+    const itemsToCopy = fs.readdirSync(templateDir);
+
+    for (const item of itemsToCopy) {
+      const srcPath = path.join(templateDir, item);
+      const destPath = path.join(projectPath, item);
+
+      // Skip certain directories and files
+      if (['node_modules', '.git', 'bin', '.next', 'dist', projectName].includes(item)) {
+        continue;
+      }
+
+      // Skip if source and destination are the same (avoid circular copying)
+      if (path.resolve(srcPath) === path.resolve(destPath)) {
+        continue;
+      }
+
+      if (fs.statSync(srcPath).isDirectory()) {
+        fs.cpSync(srcPath, destPath, { recursive: true });
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+
+    // Update package.json with the new project name
+    const packageJsonPath = path.join(projectPath, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      packageJson.name = projectName;
+      packageJson.description = \`\${projectName} - A comprehensive blog management and content creation platform\`;
+      packageJson.private = true;
+
+      // Remove template-specific fields
+      delete packageJson.bin;
+      delete packageJson.files;
+      delete packageJson.homepage;
+      delete packageJson.repository;
+      delete packageJson.bugs;
+      delete packageJson.publishConfig;
+      delete packageJson.keywords;
+      delete packageJson.author;
+      delete packageJson.license;
+
+      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    }
+
+    console.log('✅ Project created successfully!');
+    console.log('');
+    console.log('📋 Next steps:');
+    console.log(\`   cd \${projectName}\`);
+    console.log('   npm install');
+    console.log('   npm run dev');
+    console.log('');
+    console.log('🌐 Open http://localhost:3000 to view your blog writer application');
+    console.log('');
+    console.log('📚 Documentation:');
+    console.log('   - README.md - Getting started guide');
+    console.log('   - DEPLOYMENT.md - Deployment instructions');
+
+  } catch (error) {
+    log(\`❌ Failed to create project: \${error.message}\`, 'error');
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  createBlogWriterProject();
+}`;
+  
+  fs.writeFileSync(
+    path.join(binDir, 'create-blog-writer.js'),
+    createScriptContent
+  );
+  
+  // Make the script executable
+  try {
+    execSync(`chmod +x ${path.join(binDir, 'create-blog-writer.js')}`);
+  } catch (error) {
+    log(`Warning: Could not make script executable: ${error.message}`, 'warning');
+  }
+}
+
+// GitHub deployment configuration
+const GITHUB_CONFIG = {
+  repository: 'tindevelopers/adminpanel-template-blog-writer-next-js',
+  branch: 'develop', // ALWAYS use develop branch - never main
+  remoteUrl: 'https://github.com/tindevelopers/adminpanel-template-blog-writer-next-js.git',
+  protectedBranches: ['main', 'master'] // Branches that should never be modified
+};
+
+// Safety function to prevent operations on protected branches
+function validateBranchSafety() {
+  const currentBranch = process.env.GIT_BRANCH || 'develop';
+  
+  if (GITHUB_CONFIG.protectedBranches.includes(currentBranch)) {
+    log(`❌ ERROR: Cannot operate on protected branch '${currentBranch}'`, 'error');
+    log(`Protected branches: ${GITHUB_CONFIG.protectedBranches.join(', ')}`, 'error');
+    log(`This script only operates on the '${GITHUB_CONFIG.branch}' branch for safety.`, 'error');
+    process.exit(1);
+  }
+  
+  log(`✅ Branch safety check passed. Operating on: ${GITHUB_CONFIG.branch}`, 'success');
+}
+
+// GitHub deployment functions
+function initializeGitRepository(outputDir) {
+  log('Initializing Git repository...', 'progress');
+  
+  try {
+    // Initialize git repository
+    execSync('git init', { cwd: outputDir, stdio: 'pipe' });
+    
+    // Add remote origin
+    execSync(`git remote add origin ${GITHUB_CONFIG.remoteUrl}`, { 
+      cwd: outputDir, 
+      stdio: 'pipe' 
+    });
+    
+    log('Git repository initialized', 'success');
+    return true;
+  } catch (error) {
+    log(`Failed to initialize Git repository: ${error.message}`, 'error');
+    return false;
+  }
+}
+
+function commitAndPushToGitHub(outputDir, commitMessage = 'Update blog writer template') {
+  log('Committing and pushing to GitHub...', 'progress');
+  
+  try {
+    // Add all files
+    execSync('git add .', { cwd: outputDir, stdio: 'pipe' });
+    
+    // Check if there are changes to commit
+    try {
+      const status = execSync('git status --porcelain', { 
+        cwd: outputDir, 
+        encoding: 'utf8' 
+      });
+      
+      if (!status.trim()) {
+        log('No changes to commit', 'warning');
+        return true;
+      }
+    } catch (error) {
+      // Continue with commit even if status check fails
+    }
+    
+    // Commit changes
+    execSync(`git commit -m "${commitMessage}"`, { 
+      cwd: outputDir, 
+      stdio: 'pipe' 
+    });
+    
+    // Ensure we're on the correct branch before pushing
+    try {
+      const currentBranch = execSync('git branch --show-current', { 
+        cwd: outputDir, 
+        encoding: 'utf8' 
+      }).trim();
+      
+      if (currentBranch !== GITHUB_CONFIG.branch) {
+        log(`Switching to ${GITHUB_CONFIG.branch} branch...`, 'progress');
+        execSync(`git checkout -b ${GITHUB_CONFIG.branch}`, { 
+          cwd: outputDir, 
+          stdio: 'pipe' 
+        });
+      }
+    } catch (error) {
+      log(`Warning: Could not verify branch: ${error.message}`, 'warning');
+    }
+    
+    // Push to develop branch (ALWAYS develop, never main)
+    execSync(`git push -u origin ${GITHUB_CONFIG.branch}`, { 
+      cwd: outputDir, 
+      stdio: 'pipe' 
+    });
+    
+    log(`Successfully pushed to GitHub repository: ${GITHUB_CONFIG.repository}`, 'success');
+    log(`Branch: ${GITHUB_CONFIG.branch}`, 'info');
+    return true;
+  } catch (error) {
+    log(`Failed to commit and push to GitHub: ${error.message}`, 'error');
+    
+    // Try to handle common Git issues
+    if (error.message.includes('fatal: not a git repository')) {
+      log('Attempting to reinitialize Git repository...', 'progress');
+      if (initializeGitRepository(outputDir)) {
+        return commitAndPushToGitHub(outputDir, commitMessage);
+      }
+    }
+    
+    return false;
+  }
+}
+
+function publishToNPM(outputDir) {
+  log('Publishing to NPM...', 'progress');
+  
+  try {
+    // Check if package is already published
+    try {
+      execSync(`npm view ${require(path.join(outputDir, 'package.json')).name}`, { 
+        stdio: 'pipe' 
+      });
+      log('Package already exists on NPM, updating version...', 'info');
+      
+      // Update version
+      execSync('npm version patch', { cwd: outputDir, stdio: 'inherit' });
+    } catch (error) {
+      log('Package not found on NPM, publishing new package...', 'info');
+    }
+    
+    // Publish to NPM
+    execSync('npm publish', { cwd: outputDir, stdio: 'inherit' });
+    
+    log('Successfully published to NPM', 'success');
+    return true;
+  } catch (error) {
+    log(`Failed to publish to NPM: ${error.message}`, 'error');
+    return false;
+  }
+}
+
+function deployToGitHub(outputDir, shouldPublishNPM = false) {
+  log('Starting GitHub deployment process...', 'progress');
+  
+  // Safety check - ensure we never operate on protected branches
+  validateBranchSafety();
+  
+  const success = {
+    git: false,
+    npm: false
+  };
+  
+  // Initialize Git and push to GitHub
+  if (initializeGitRepository(outputDir)) {
+    const commitMessage = `Update ${TEMPLATE_DISPLAY_NAME} template - ${new Date().toISOString()}`;
+    success.git = commitAndPushToGitHub(outputDir, commitMessage);
+  }
+  
+  // Publish to NPM if requested
+  if (shouldPublishNPM && success.git) {
+    success.npm = publishToNPM(outputDir);
+  }
+  
+  // Summary
+  log('Deployment Summary:', 'info');
+  log(`  GitHub: ${success.git ? '✅ Success' : '❌ Failed'}`, 'info');
+  if (shouldPublishNPM) {
+    log(`  NPM: ${success.npm ? '✅ Success' : '❌ Failed'}`, 'info');
+  }
+  
+  if (success.git) {
+    log(`🔗 Repository: https://github.com/${GITHUB_CONFIG.repository}`, 'info');
+    log(`🌿 Branch: ${GITHUB_CONFIG.branch}`, 'info');
+  }
+  
+  return success;
 }
 
 // Main extraction function
@@ -767,6 +1453,21 @@ function extractTemplate() {
     }
   });
   
+  // Copy selective icons
+  log('Copying selective icons...', 'progress');
+  ensureDirectoryExists(path.join(OUTPUT_DIR, 'src/icons'));
+  ICONS_TO_COPY.forEach(iconFile => {
+    const srcPath = path.resolve(iconFile);
+    const destPath = path.join(OUTPUT_DIR, iconFile);
+    
+    if (fs.existsSync(srcPath)) {
+      copyFileOrDirectory(srcPath, destPath);
+      log(`Copied icon: ${iconFile}`, 'success');
+    } else {
+      log(`Skipped icon (not found): ${iconFile}`, 'warning');
+    }
+  });
+  
   // Create package.json
   log('Creating package.json...', 'progress');
   const packageJson = createPackageJson();
@@ -784,18 +1485,10 @@ function extractTemplate() {
   );
   log('Created main page', 'success');
   
-  // Create admin layout
-  log('Creating admin layout...', 'progress');
-  ensureDirectoryExists(path.join(OUTPUT_DIR, 'src/app/(admin)'));
-  fs.writeFileSync(
-    path.join(OUTPUT_DIR, 'src/app/(admin)/layout.tsx'),
-    createAdminLayout()
-  );
-  fs.writeFileSync(
-    path.join(OUTPUT_DIR, 'src/app/(admin)/page.tsx'),
-    createAdminPage()
-  );
-  log('Created admin layout and page', 'success');
+  // Integrate admin layout into main layout (no separate route group)
+  log('Integrating admin layout into main layout...', 'progress');
+  integrateAdminLayoutIntoMain();
+  log('Integrated admin layout into main layout', 'success');
   
   // Create documentation
   log('Creating documentation...', 'progress');
@@ -819,6 +1512,26 @@ function extractTemplate() {
   addBuildCaching();
   log('Added build caching configuration', 'success');
   
+  // Create Vercel configuration
+  log('Creating Vercel configuration...', 'progress');
+  createVercelConfig();
+  log('Created Vercel configuration', 'success');
+  
+  // Create .gitignore for standalone
+  log('Creating .gitignore...', 'progress');
+  createGitignore();
+  log('Created .gitignore', 'success');
+  
+  // Create LICENSE file
+  log('Creating LICENSE file...', 'progress');
+  createLicense();
+  log('Created LICENSE file', 'success');
+  
+  // Create bin directory with executable script
+  log('Creating bin directory with executable script...', 'progress');
+  createBinDirectory();
+  log('Created bin directory with executable script', 'success');
+  
   // Install dependencies
   log('Installing dependencies...', 'progress');
   try {
@@ -834,12 +1547,34 @@ function extractTemplate() {
   
   log(`🎉 ${TEMPLATE_DISPLAY_NAME} template extraction completed!`, 'success');
   log(`📁 Output directory: ${OUTPUT_DIR}`, 'info');
+  
+  // Deploy to GitHub if requested
+  if (SHOULD_DEPLOY_GITHUB) {
+    log('', 'info');
+    log('🚀 Starting GitHub deployment...', 'progress');
+    const deploymentSuccess = deployToGitHub(OUTPUT_DIR, SHOULD_PUBLISH_NPM);
+    
+    if (deploymentSuccess.git) {
+      log('', 'info');
+      log('✅ Template successfully deployed to GitHub!', 'success');
+      log(`🔗 Repository: https://github.com/${GITHUB_CONFIG.repository}`, 'info');
+      log(`🌿 Branch: ${GITHUB_CONFIG.branch}`, 'info');
+    }
+  }
+  
+  log('', 'info');
   log('🚀 Next steps:', 'info');
   log('   1. cd ' + OUTPUT_DIR, 'info');
   log('   2. npm run dev', 'info');
   log('   3. Open http://localhost:3000', 'info');
   log('', 'info');
   log('📚 Documentation available in README.md and DEPLOYMENT.md', 'info');
+  
+  if (!SHOULD_DEPLOY_GITHUB) {
+    log('', 'info');
+    log('💡 To deploy to GitHub, run with --deploy-github flag', 'info');
+    log('💡 To also publish to NPM, add --publish-npm flag', 'info');
+  }
 }
 
 // Run extraction
