@@ -37,7 +37,7 @@ export default function FinanceTemplate() {
             Finance Template Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            We're building a comprehensive financial management system with transaction tracking, 
+            We&apos;re building a comprehensive financial management system with transaction tracking, 
             account management, financial reporting, and budgeting tools.
           </p>
           <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">

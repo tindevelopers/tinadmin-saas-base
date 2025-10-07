@@ -37,7 +37,7 @@ export default function SaasTemplate() {
             SaaS Template Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            We're developing a comprehensive SaaS management system with user management, 
+            We&apos;re developing a comprehensive SaaS management system with user management, 
             subscription plans, usage analytics, and billing integration.
           </p>
           <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4">

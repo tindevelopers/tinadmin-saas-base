@@ -37,7 +37,7 @@ export default function HealthcareTemplate() {
             Healthcare Template Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            We're developing a comprehensive healthcare management system with patient records, 
+            We&apos;re developing a comprehensive healthcare management system with patient records, 
             appointment scheduling, medical billing, and staff management.
           </p>
           <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">

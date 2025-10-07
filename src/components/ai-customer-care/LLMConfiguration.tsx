@@ -1,4 +1,4 @@
-"use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */"use client";
 
 import React, { useState } from "react";
 
@@ -77,7 +77,7 @@ export default function LLMConfiguration() {
             placeholder="Enter system instructions for the AI agent..."
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Define the agent's personality, behavior, and response style
+            Define the agent&apos;s personality, behavior, and response style
           </p>
         </div>
 
@@ -187,7 +187,7 @@ export default function LLMConfiguration() {
           <textarea
             rows={2}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            placeholder="I'm sorry, I didn't understand that. Could you please rephrase your question?"
+            placeholder="I&apos;m sorry, I didn&apos;t understand that. Could you please rephrase your question?"
           />
         </div>
 

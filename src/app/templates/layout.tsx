@@ -64,6 +64,8 @@ export default function TemplateLayout({
                 className="text-sm border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               >
                 <option value="ecommerce">E-commerce</option>
+                <option value="blog-writer">Blog Writer</option>
+                <option value="ai-customer-care">AI Customer Care</option>
                 <option value="restaurant">Restaurant</option>
                 <option value="healthcare">Healthcare</option>
                 <option value="finance">Finance</option>

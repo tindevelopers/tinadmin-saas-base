@@ -37,7 +37,7 @@ export default function RestaurantTemplate() {
             Restaurant Template Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            We're working on a comprehensive restaurant management dashboard with menu management, 
+            We&apos;re working on a comprehensive restaurant management dashboard with menu management, 
             order processing, inventory tracking, and staff scheduling.
           </p>
           <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">

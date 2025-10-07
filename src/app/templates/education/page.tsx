@@ -37,7 +37,7 @@ export default function EducationTemplate() {
             Education Template Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            We're creating a comprehensive educational management system with student records, 
+            We&apos;re creating a comprehensive educational management system with student records, 
             course scheduling, grade management, and attendance tracking.
           </p>
           <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
