@@ -124,6 +124,7 @@ const navItems: NavItem[] = [
     icon: <PageIcon />,
     subItems: [
       { name: "File Manager", path: "/file-manager" },
+      { name: "Multi-Tenant", path: "/multi-tenant", new: true },
       { name: "Pricing Tables", path: "/pricing-tables" },
       { name: "FAQ", path: "/faq" },
       { name: "API Keys", path: "/api-keys", new: true },
