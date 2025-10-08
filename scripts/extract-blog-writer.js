@@ -3,9 +3,9 @@
 /**
  * Blog Writer Template Extraction Script
  * 
- * This script extracts the Blog Writer template from the TinAdmin repository
+ * This script extracts ONLY the Blog Writer template from the TinAdmin repository
  * and creates a standalone Next.js project with all necessary files and dependencies.
- * It can also deploy the template to GitHub and publish to NPM.
+ * All other templates are excluded to create a focused blog writer application.
  * 
  * Usage: 
  *   node scripts/extract-blog-writer.js [output-directory] [options]
@@ -18,6 +18,13 @@
  * Options:
  *   --deploy-github, --deploy    Deploy the template to GitHub (develop branch ONLY)
  *   --publish-npm, --npm         Also publish to NPM (requires --deploy-github)
+ * 
+ * INCLUDES:
+ *   ✅ Blog Writer template ONLY
+ *   ✅ Essential UI components (ui, common, charts, form, tables)
+ *   ✅ All missing dependencies fixed (react-apexcharts, @popperjs/core, flatpickr, etc.)
+ *   ✅ Simplified Vercel config for successful deployment
+ *   ❌ All other templates excluded (Analytics, CRM, E-commerce, etc.)
  * 
  * SAFETY: This script ONLY operates on the 'develop' branch and will NEVER
  * modify the 'main' branch. The main branch is protected and can only be
@@ -73,11 +80,17 @@ GITHUB REPOSITORY:
   
 FEATURES:
   ✅ Complete Next.js project structure
-  ✅ All blog writer components and pages
-  ✅ Fixed missing dependencies and files
+  ✅ Blog Writer template ONLY (focused application)
+  ✅ Essential UI components for blog functionality
+  ✅ Fixed missing dependencies from deployment testing
+  ✅ Simplified Vercel config for successful deployment
   ✅ GitHub deployment to develop branch
   ✅ NPM package publishing
   ✅ Executable template creation script
+
+TEMPLATES INCLUDED:
+  📝 Blog Writer ONLY
+  ❌ All other templates excluded (Analytics, CRM, E-commerce, etc.)
 `);
 }
 
@@ -113,11 +126,14 @@ const FILES_TO_COPY = [
   'src/utils',
   'src/svg.d.ts',
   
+  // Admin layout only (no other admin pages)
+  'src/app/(admin)/layout.tsx',
+  
   // Template-specific files (ONLY blog-writer)
   `src/app/templates/${TEMPLATE_NAME}`,
   `src/components/${TEMPLATE_NAME}`,
   
-  // Essential UI components that blog writer might need
+  // Essential UI components for blog writer only
   'src/components/ui',
   'src/components/common',
   'src/components/charts',
@@ -136,6 +152,9 @@ const FILES_TO_COPY = [
   
   // Documentation
   `templates/${TEMPLATE_NAME}/template.config.json`,
+  
+  // GitHub Actions workflows (if they exist)
+  '.github/workflows',
 ];
 
 // Icons to copy (comprehensive list based on actual usage)
@@ -215,7 +234,7 @@ const FILES_TO_CREATE = [
   'DEPLOYMENT.md',
 ];
 
-// Dependencies to include (filtered from main package.json)
+// Dependencies to include (filtered from main package.json + deployment fixes)
 const REQUIRED_DEPENDENCIES = [
   'next@^15.5.4',
   'react@^19.0.0',
@@ -239,6 +258,12 @@ const REQUIRED_DEPENDENCIES = [
   'lucide-react@^0.460.0',
   'recharts@^2.13.0',
   'apexcharts@^4.3.0',
+  'react-apexcharts@^1.4.1',
+  '@popperjs/core@^2.11.8',
+  'flatpickr@^4.6.13',
+  'react-dropzone@^14.2.3',
+  'swiper@^11.0.5',
+  'simplebar-react@^3.2.4',
 ];
 
 const REQUIRED_DEV_DEPENDENCIES = [
@@ -834,8 +859,8 @@ function modifyAppSidebar() {
   if (fs.existsSync(sidebarPath)) {
     let sidebarContent = fs.readFileSync(sidebarPath, 'utf8');
     
-    // Replace the navigation items to only include blog writer
-    const blogWriterNavItems = `
+    // Replace the navigation items to ONLY include blog writer
+    const blogWriterOnlyNavItems = `
 const navItems = [
   {
     name: "Blog Writer",
@@ -860,7 +885,7 @@ const navItems = [
     // Replace the navItems array
     sidebarContent = sidebarContent.replace(
       /const navItems = \[[\s\S]*?\];/,
-      blogWriterNavItems
+      blogWriterOnlyNavItems
     );
     
     fs.writeFileSync(sidebarPath, sidebarContent);
@@ -955,20 +980,9 @@ function integrateAdminLayoutIntoMain() {
 }
 
 function createVercelConfig() {
+  // Simplified Vercel config that works with Next.js App Router
   const vercelConfig = {
     version: 2,
-    builds: [
-      {
-        src: "package.json",
-        use: "@vercel/next"
-      }
-    ],
-    routes: [
-      {
-        src: "/(.*)",
-        dest: "/$1"
-      }
-    ],
     env: {
       NODE_ENV: "production"
     }
@@ -1124,6 +1138,154 @@ temp/`;
   );
 }
 
+function createGitHubWorkflow() {
+  const workflowDir = path.join(OUTPUT_DIR, '.github/workflows');
+  ensureDirectoryExists(workflowDir);
+  
+  const workflowContent = `name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+env:
+  VERCEL_ORG_ID: \${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: \${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=\${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --token=\${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Preview to Vercel
+        run: vercel deploy --prebuilt --token=\${{ secrets.VERCEL_TOKEN }}
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run build
+        run: npm run build
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=\${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=\${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Production to Vercel
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token=\${{ secrets.VERCEL_TOKEN }})
+          echo "deployment_url=$url" >> $GITHUB_OUTPUT
+
+      - name: Comment deployment URL
+        uses: actions/github-script@v7
+        if: github.event_name == 'push'
+        with:
+          script: |
+            const deploymentUrl = '\${{ steps.deploy.outputs.deployment_url }}';
+            const message = \\\`✅ Successfully deployed to Vercel!
+
+🔗 **Deployment URL**: \\\${deploymentUrl}\\\`;
+            
+            // Create a commit status
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              target_url: deploymentUrl,
+              description: 'Deployed to Vercel',
+              context: 'vercel/deployment'
+            });
+`;
+  
+  fs.writeFileSync(
+    path.join(workflowDir, 'deploy-vercel.yml'),
+    workflowContent
+  );
+  
+  // Create setup guide
+  const setupGuideContent = `# Vercel CI/CD Setup Guide
+
+This guide will help you set up automatic deployments to Vercel when pushing to the \\\`develop\\\` branch.
+
+## Required GitHub Secrets
+
+Add these secrets to your GitHub repository (Settings → Secrets and variables → Actions):
+
+1. **VERCEL_TOKEN** - Get from https://vercel.com/account/tokens
+2. **VERCEL_ORG_ID** - Found in .vercel/project.json after running \\\`vercel link\\\`
+3. **VERCEL_PROJECT_ID** - Found in .vercel/project.json after running \\\`vercel link\\\`
+
+## Quick Setup
+
+\\\`\\\`\\\`bash
+# Login to Vercel
+vercel login
+
+# Link your project
+vercel link
+
+# View project details
+cat .vercel/project.json
+\\\`\\\`\\\`
+
+## Workflow Behavior
+
+- **Push to develop**: Automatically deploys to production
+- **Pull request to develop**: Creates preview deployment
+
+For detailed instructions, see .github/VERCEL_SETUP.md
+`;
+  
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, '.github/VERCEL_SETUP.md'),
+    setupGuideContent
+  );
+}
+
 function createBinDirectory() {
   const binDir = path.join(OUTPUT_DIR, 'bin');
   ensureDirectoryExists(binDir);
@@ -1250,7 +1412,7 @@ if (require.main === module) {
 const GITHUB_CONFIG = {
   repository: 'tindevelopers/adminpanel-template-blog-writer-next-js',
   branch: 'develop', // ALWAYS use develop branch - never main
-  remoteUrl: 'https://github.com/tindevelopers/adminpanel-template-blog-writer-next-js.git',
+  remoteUrl: 'git@github.com:tindevelopers/adminpanel-template-blog-writer-next-js.git',
   protectedBranches: ['main', 'master'] // Branches that should never be modified
 };
 
@@ -1531,6 +1693,11 @@ function extractTemplate() {
   log('Creating bin directory with executable script...', 'progress');
   createBinDirectory();
   log('Created bin directory with executable script', 'success');
+  
+  // Create GitHub Actions workflow for Vercel deployment
+  log('Creating GitHub Actions workflow for Vercel deployment...', 'progress');
+  createGitHubWorkflow();
+  log('Created GitHub Actions workflow for Vercel deployment', 'success');
   
   // Install dependencies
   log('Installing dependencies...', 'progress');
