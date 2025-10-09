@@ -141,6 +141,7 @@ const AICustomerCareSidebar: React.FC = () => {
 
   const renderMenuItems = (
     navItems: NavItem[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _menuType?: string
   ) => (
     <ul className="flex flex-col gap-1">
