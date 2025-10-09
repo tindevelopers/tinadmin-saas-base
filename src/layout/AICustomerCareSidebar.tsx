@@ -1,24 +1,17 @@
 "use client";
-import React, { useEffect, useRef, useCallback, useState } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
   AiIcon,
-  BoxCubeIcon,
-  CalenderIcon,
   CallIcon,
-  CartIcon,
   ChatIcon,
   ChevronDownIcon,
-  GridIcon,
   HorizontaLDots,
-  ListIcon,
   MailIcon,
   PageIcon,
   PieChartIcon,
-  PlugInIcon,
   TableIcon,
   TaskIcon,
   UserCircleIcon,
@@ -147,11 +140,10 @@ const AICustomerCareSidebar: React.FC = () => {
   const pathname = usePathname();
 
   const renderMenuItems = (
-    navItems: NavItem[],
-    menuType: "main" | "support" | "others" | "ai-customer-care"
+    navItems: NavItem[]
   ) => (
     <ul className="flex flex-col gap-1">
-      {navItems.map((nav, index) => (
+      {navItems.map((nav) => (
         <li key={nav.name}>
           {nav.subItems ? (
             <button
@@ -322,7 +314,7 @@ const AICustomerCareSidebar: React.FC = () => {
                     <HorizontaLDots />
                   )}
                 </h2>
-                {renderMenuItems(aiCustomerCareItems, "ai-customer-care")}
+                {renderMenuItems(aiCustomerCareItems)}
               </div>
 
               {/* Other Menu Items */}
