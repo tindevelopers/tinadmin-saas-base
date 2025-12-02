@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 export default function PaymentMethod() {
@@ -10,8 +11,8 @@ export default function PaymentMethod() {
           </h3>
         </div>
         <div>
-          <button
-            type="button"
+          <Link
+            href="/templates/saas/billing/add-new-card"
             className="shadow-theme-xs flex w-full justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
             <svg
@@ -30,7 +31,7 @@ export default function PaymentMethod() {
               />
             </svg>
             Add New Card
-          </button>
+          </Link>
         </div>
       </div>
       <div className="border-t border-gray-200 p-4 sm:p-6 dark:border-gray-800">

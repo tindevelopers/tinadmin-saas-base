@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function BillingPlan() {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white xl:w-4/6 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -195,18 +197,18 @@ export default function BillingPlan() {
             </li>
           </ul>
           <div className="mt-24 flex w-full flex-col items-center justify-between gap-3 sm:flex-row">
-            <button
-              type="button"
+            <Link
+              href="/templates/saas/billing/cancel-subscription"
               className="shadow-theme-xs -mx-px flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
             >
               Cancel Subscription
-            </button>
-            <button
-              type="button"
+            </Link>
+            <Link
+              href="/templates/saas/billing/upgrade-to-pro"
               className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full justify-center rounded-lg px-4 py-3 text-sm font-medium text-white"
             >
               Upgrade to Pro
-            </button>
+            </Link>
           </div>
         </div>
       </div>

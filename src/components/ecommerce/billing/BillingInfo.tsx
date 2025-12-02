@@ -2,6 +2,7 @@
 import Button from "@/components/ui/button/Button";
 import { Modal } from "@/components/ui/modal";
 import { useModal } from "@/hooks/useModal";
+import Link from "next/link";
 import React from "react";
 
 export default function BillingInfo() {
@@ -26,7 +27,7 @@ export default function BillingInfo() {
                 Name
               </span>
               <span className="w-1/2 text-sm font-medium text-gray-700 sm:w-2/3 dark:text-gray-400">
-                Mushafrof Chowdhury
+                Jane Smith
               </span>
             </li>
             <li className="flex items-center gap-5 py-2.5">
@@ -80,10 +81,9 @@ export default function BillingInfo() {
           </ul>
 
           <div className="mt-10 xl:mt-2 2xl:mt-12">
-            <Button
-              onClick={openModal}
-              variant="outline"
-              className="w-full h-11"
+            <Link
+              href="/templates/saas/billing/update-billing-address"
+              className="shadow-theme-xs flex w-full h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,7 @@ export default function BillingInfo() {
                 />
               </svg>
               Update Billing Address
-            </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function BillingInfo() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="Mushafrof"
+                    defaultValue="Jane"
                     className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
                   />
                 </div>
@@ -139,7 +139,7 @@ export default function BillingInfo() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="Chowdhury"
+                    defaultValue="Smith"
                     className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
                   />
                 </div>
