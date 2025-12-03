@@ -92,7 +92,7 @@ export default function SubscriptionHistoryPage() {
             {["all", "created", "upgraded", "downgraded", "cancelled", "renewed"].map((action) => (
               <Button
                 key={action}
-                variant={filter === action ? "default" : "outline"}
+                variant={filter === action ? "primary" : "outline"}
                 size="sm"
                 onClick={() => setFilter(action)}
               >

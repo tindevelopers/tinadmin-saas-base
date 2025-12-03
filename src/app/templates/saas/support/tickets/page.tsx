@@ -117,7 +117,7 @@ export default function SupportTicketsPage() {
             {["all", "open", "in-progress", "resolved", "closed"].map((status) => (
               <Button
                 key={status}
-                variant={statusFilter === status ? "default" : "outline"}
+                variant={statusFilter === status ? "primary" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter(status)}
               >

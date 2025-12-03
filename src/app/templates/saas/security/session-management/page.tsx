@@ -67,7 +67,7 @@ export default function SessionManagementPage() {
             {(["all", "active", "expired"] as const).map((status) => (
               <Button
                 key={status}
-                variant={filter === status ? "default" : "outline"}
+                variant={filter === status ? "primary" : "outline"}
                 size="sm"
                 onClick={() => setFilter(status)}
               >

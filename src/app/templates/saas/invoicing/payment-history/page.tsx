@@ -93,7 +93,7 @@ export default function PaymentHistoryPage() {
             {["all", "success", "pending", "failed", "refunded"].map((status) => (
               <Button
                 key={status}
-                variant={filter === status ? "default" : "outline"}
+                variant={filter === status ? "primary" : "outline"}
                 size="sm"
                 onClick={() => setFilter(status)}
               >

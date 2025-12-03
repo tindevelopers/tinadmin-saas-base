@@ -104,7 +104,7 @@ export default function AuditLogsPage() {
             {(["all", "success", "failed"] as const).map((status) => (
               <Button
                 key={status}
-                variant={filter === status ? "default" : "outline"}
+                variant={filter === status ? "primary" : "outline"}
                 size="sm"
                 onClick={() => setFilter(status)}
               >
