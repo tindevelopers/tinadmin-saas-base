@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin-client";
 import { isPlatformAdmin } from "./organization-admins";
+import { requirePermission } from "@/lib/auth/permission-middleware";
 import type { Database } from "@/lib/supabase/types";
 
 type Tenant = Database["public"]["Tables"]["tenants"]["Row"] & {
@@ -20,6 +21,9 @@ type Tenant = Database["public"]["Tables"]["tenants"]["Row"] & {
  * membership to access tenant users (see getAllUsers)
  */
 export async function getAllTenants(): Promise<Tenant[]> {
+  // Check permission
+  await requirePermission("tenants.read");
+  
   try {
     const supabase = await createClient();
     const { data: { user: authUser } } = await supabase.auth.getUser();

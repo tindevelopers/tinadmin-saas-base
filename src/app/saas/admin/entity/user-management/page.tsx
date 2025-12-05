@@ -170,14 +170,18 @@ export default function UserManagementPage() {
                 className="h-10 rounded-full border border-gray-200 bg-white/70 pl-10 pr-4 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
               />
             </div>
-            <Button variant="outline" size="sm">
-              <ArrowDownTrayIcon className="h-4 w-4" />
-              Export CSV
-            </Button>
-            <Button size="sm">
-              <UserPlusIcon className="h-4 w-4" />
-              Add User
-            </Button>
+                <PermissionGate permission="users.read" fallback={null}>
+                  <Button variant="outline" size="sm">
+                    <ArrowDownTrayIcon className="h-4 w-4" />
+                    Export CSV
+                  </Button>
+                </PermissionGate>
+                <PermissionGate permission="users.write" fallback={null}>
+                  <Button size="sm">
+                    <UserPlusIcon className="h-4 w-4" />
+                    Add User
+                  </Button>
+                </PermissionGate>
           </div>
         </div>
 

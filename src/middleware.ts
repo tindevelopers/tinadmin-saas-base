@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 import { resolveTenant } from "@/lib/tenant/resolver";
+import { getSubdomainFromRequest, getTenantIdFromSubdomain } from "@/lib/tenant/subdomain-routing";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -67,12 +68,37 @@ export async function middleware(request: NextRequest) {
     console.log("[middleware] Auth error:", authError.message);
   }
 
-  // Resolve tenant from multiple sources (subdomain, URL param, header, session)
-  const tenantResult = await resolveTenant({
-    hostname: request.headers.get("host") || undefined,
-    url: request.url,
-    headers: request.headers,
-  });
+  // Try subdomain routing first
+  const hostname = request.headers.get("host") || "";
+  const subdomainInfo = await getSubdomainFromRequest();
+  
+  let tenantResult;
+  
+  if (subdomainInfo.subdomain) {
+    // Try to resolve tenant from subdomain
+    const tenantId = await getTenantIdFromSubdomain(subdomainInfo.subdomain);
+    if (tenantId) {
+      tenantResult = {
+        tenant: null, // We don't need full tenant object in middleware
+        tenantId,
+        source: "subdomain" as const,
+      };
+    } else {
+      // Fall back to regular resolution
+      tenantResult = await resolveTenant({
+        hostname,
+        url: request.url,
+        headers: request.headers,
+      });
+    }
+  } else {
+    // Resolve tenant from multiple sources (URL param, header, session)
+    tenantResult = await resolveTenant({
+      hostname,
+      url: request.url,
+      headers: request.headers,
+    });
+  }
 
   // Set tenant_id in request headers for downstream use
   if (tenantResult.tenantId) {

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin-client";
 import { isPlatformAdmin } from "./organization-admins";
+import { requirePermission } from "@/lib/auth/permission-middleware";
 import type { Database } from "@/lib/supabase/types";
 
 type User = Database["public"]["Tables"]["users"]["Row"] & {
@@ -33,6 +34,9 @@ type User = Database["public"]["Tables"]["users"]["Row"] & {
  * This maintains proper tenant isolation and privacy compliance.
  */
 export async function getAllUsers(): Promise<User[]> {
+  // Check permission
+  await requirePermission("users.read");
+  
   try {
     const supabase = await createClient();
     const { data: { user: authUser } } = await supabase.auth.getUser();

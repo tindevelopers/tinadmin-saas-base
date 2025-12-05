@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin-client";
 import { createClient } from "@/lib/supabase/server";
+import { requirePermission } from "@/lib/auth/permission-middleware";
 import type { Database } from "@/lib/supabase/types";
 
 type OrganizationAdmin = Database["public"]["Tables"]["users"]["Row"] & {
@@ -53,6 +54,9 @@ async function isPlatformAdminServer(): Promise<boolean> {
  * Server action version
  */
 export async function getAllOrganizationAdmins(): Promise<OrganizationAdmin[]> {
+  // Check permission - only Platform Admins can view Organization Admins
+  await requirePermission("users.read");
+  
   try {
     // Check if current user is Platform Admin
     const adminStatus = await isPlatformAdminServer();

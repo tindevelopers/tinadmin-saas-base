@@ -29,6 +29,11 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       
       const supabase = createClient();
       
+      // Check localStorage for tenant override (from tenant switcher)
+      const storedTenantId = typeof window !== "undefined" 
+        ? localStorage.getItem("current_tenant_id")
+        : null;
+      
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
@@ -41,22 +46,38 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       // Get user's tenant_id from users table
       const { data: userData, error: userDataError } = await supabase
         .from("users")
-        .select("tenant_id")
+        .select("tenant_id, roles:role_id(name)")
         .eq("id", user.id)
         .single();
 
-      if (userDataError || !userData?.tenant_id) {
+      if (userDataError || !userData) {
         setTenant(null);
         setIsLoading(false);
         return;
       }
 
-      // Get tenant details - only query if we have a tenant_id
-      if (userData.tenant_id) {
+      // Determine which tenant_id to use
+      // Priority: storedTenantId (from switcher) > userData.tenant_id
+      // Platform Admins can have tenant_id = null
+      const roleName = (userData.roles as any)?.name;
+      const isPlatformAdmin = roleName === "Platform Admin" && userData.tenant_id === null;
+      
+      let targetTenantId: string | null = null;
+      
+      if (storedTenantId) {
+        // Use tenant from switcher if available
+        targetTenantId = storedTenantId;
+      } else if (!isPlatformAdmin && userData.tenant_id) {
+        // Use user's tenant_id (unless Platform Admin)
+        targetTenantId = userData.tenant_id;
+      }
+
+      // Get tenant details
+      if (targetTenantId) {
         const { data: tenantData, error: tenantError } = await supabase
           .from("tenants")
           .select("*")
-          .eq("id", userData.tenant_id)
+          .eq("id", targetTenantId)
           .single();
 
         if (tenantError) {
@@ -69,6 +90,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           setTenant(tenantData);
         }
       } else {
+        // Platform Admin or no tenant
         setTenant(null);
       }
     } catch (err) {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+import { useTenant } from "@/lib/tenant/context";
 import {
   AiIcon,
   BoxCubeIcon,
@@ -393,6 +394,7 @@ const supportItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const { tenant, isLoading: isTenantLoading } = useTenant();
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -699,8 +701,8 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-8 flex  ${
-          !isExpanded && !isHovered ? "xl:justify-center" : "justify-start"
+        className={`py-8 flex flex-col gap-3 ${
+          !isExpanded && !isHovered ? "xl:items-center" : "items-start"
         }`}
       >
         <Link href="/">
@@ -730,6 +732,27 @@ const AppSidebar: React.FC = () => {
             />
           )}
         </Link>
+        {/* Tenant Context Badge */}
+        {(isExpanded || isHovered || isMobileOpen) && (
+          <div className="w-full">
+            {!isTenantLoading && tenant ? (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                  Workspace
+                </p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                  {tenant.name}
+                </p>
+              </div>
+            ) : !isTenantLoading && !tenant ? (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+                <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                  Platform Admin
+                </p>
+              </div>
+            ) : null}
+          </div>
+        )}
       </div>
       <div className="flex flex-col overflow-y-auto  duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">

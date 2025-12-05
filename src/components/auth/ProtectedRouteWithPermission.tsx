@@ -1,0 +1,71 @@
+/**
+ * Protected Route with Permission Check
+ * 
+ * Protects routes based on permissions
+ */
+
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { hasPermission, type Permission } from "@/lib/auth/permissions";
+
+interface ProtectedRouteWithPermissionProps {
+  permission: Permission;
+  children: ReactNode;
+  redirectTo?: string;
+}
+
+export default function ProtectedRouteWithPermission({
+  permission,
+  children,
+  redirectTo = "/saas/dashboard",
+}: ProtectedRouteWithPermissionProps) {
+  const router = useRouter();
+  const [hasAccess, setHasAccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAccess() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/signin");
+        return;
+      }
+
+      try {
+        const access = await hasPermission(user.id, permission);
+        if (!access) {
+          router.push(redirectTo);
+          return;
+        }
+        setHasAccess(true);
+      } catch (error) {
+        console.error("Permission check error:", error);
+        router.push(redirectTo);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkAccess();
+  }, [permission, redirectTo, router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-500">Checking permissions...</div>
+      </div>
+    );
+  }
+
+  if (!hasAccess) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+

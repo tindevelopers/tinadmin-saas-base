@@ -14,6 +14,7 @@ import {
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { getAllTenants } from "@/app/actions/tenants";
+import { PermissionGate } from "@/lib/auth/permission-gates";
 import type { Database } from "@/lib/supabase/types";
 
 type Tenant = Database["public"]["Tables"]["tenants"]["Row"] & {
@@ -187,10 +188,12 @@ export default function TenantManagementPage() {
                   className="h-10 rounded-full border border-gray-200 bg-white/70 pl-10 pr-4 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                 />
               </div>
-              <Button size="sm">
-                <PlusIcon className="h-4 w-4" />
-                Add Tenant
-              </Button>
+              <PermissionGate permission="tenants.write" fallback={null}>
+                <Button size="sm">
+                  <PlusIcon className="h-4 w-4" />
+                  Add Tenant
+                </Button>
+              </PermissionGate>
             </div>
           </div>
 

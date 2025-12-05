@@ -5,6 +5,7 @@ import "simplebar-react/dist/simplebar.min.css";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { TenantProvider } from "@/lib/tenant/context";
+import { WorkspaceProvider } from "@/lib/workspace/context";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -23,7 +24,9 @@ export default function RootLayout({
       <body className={`${outfit.variable} ${outfit.className} dark:bg-gray-900`}>
         <ThemeProvider>
           <TenantProvider>
-            <SidebarProvider>{children}</SidebarProvider>
+            <WorkspaceProvider>
+              <SidebarProvider>{children}</SidebarProvider>
+            </WorkspaceProvider>
           </TenantProvider>
         </ThemeProvider>
       </body>
